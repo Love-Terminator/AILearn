@@ -2,7 +2,7 @@ import torch
 from torch import nn, Tensor
 
 '''前馈神经网络'''
-class MLP(nn.modules):
+class FNN(nn.modules):
     def __int__(self, input_dim: int, hidden_dim: int, dropout: float):
         super().__int__()
 
