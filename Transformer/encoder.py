@@ -20,3 +20,16 @@ class EncoderLayer(nn.modules):
         h = x + self.attention.forward(norm_x, norm_x, norm_x)
         out = h + self.fnn.forward(self.fnn_norm.forward(h))
         return out
+
+class Encoder(nn.Module):
+    def __init__(self, args):
+        super(Encoder, self).__init__()
+        # 一个 Encoder 由 N 个 Encoder Layer 组成
+        self.layers = nn.ModuleList([EncoderLayer(args) for _ in range(args.n_layer)])
+        self.norm = LayerNorm(args.n_embd)
+
+    def forward(self, x):
+        "分别通过 N 层 Encoder Layer"
+        for layer in self.layers:
+            x = layer(x)
+        return self.norm(x)
