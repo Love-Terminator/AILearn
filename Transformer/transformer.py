@@ -32,26 +32,24 @@ class Transformer(nn.Module):
             dropout):
         super().__init__()
 
-        self.args.model_dim = model_dim
-        self.args.n_heads = n_heads
-        self.args.embd_dim = embd_dim
-        self.args.maxSeqLen = maxSeqLen
-        self.args.encoderLayerNum = encoderLayerNum
-        self.args.decodeLayerNum = decodeLayerNum
-        self.args.srcVocabSize = srcVocabSize
-        self.args.desVocabSize = desVocabSize
-        self.args.dropout = dropout
+        print("src_vocab_size:", srcVocabSize)
+        print("des_vocab_size:", desVocabSize)
+        print("n_heads:", n_heads)
+        print("embd_dim:", embd_dim)
+        print("maxSeqLen:", maxSeqLen)
+        print("encoderLayerNum:", encoderLayerNum)
+        print("decodeLayerNum:", decodeLayerNum)
 
         # 注册各个模型
-        self.encoder_embedding=nn.Embedding(self.args.srcVocabSize, self.args.embd_dim)
-        self.decoder_embedding=nn.Embedding(self.args.desVocabSize, self.args.embd_dim)
-        self.positional_encoding=PositionalEncoding(self.args)
-        self.drop=nn.Dropout(self.args.dropout)
-        self.encoder=Encoder(self.args)
-        self.decoder=Decoder(self.args)
+        self.encoder_embedding=nn.Embedding(srcVocabSize, embd_dim)
+        self.decoder_embedding=nn.Embedding(desVocabSize, embd_dim)
+        self.positional_encoding=PositionalEncoding(maxSeqLen, embd_dim)
+        self.drop=nn.Dropout(dropout)
+        self.encoder=Encoder(model_dim, embd_dim, n_heads, maxSeqLen, dropout, encoderLayerNum)
+        self.decoder=Decoder(model_dim, embd_dim, n_heads, maxSeqLen, dropout, decodeLayerNum)
 
         # 最后的线性层，输入是 embd_dim，输出是词表大小
-        self.lm_head = nn.Linear(self.args.embd_dim, self.args.desVocabSize, bias=False)
+        self.lm_head = nn.Linear(embd_dim, desVocabSize, bias=False)
 
     def forward(self, src, target):
         print("srcSize: ", src.size())

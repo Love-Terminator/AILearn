@@ -5,16 +5,16 @@ from torch import nn
 
 #位置信息编码
 class PositionalEncoding(nn.Module):
-    def __init__(self, args):
+    def __init__(self, maxSeqLen, embd_dim):
         super().__init__()
 
         # maxSeqLen是序列最大长度
-        pe = torch.zeros(args.maxSeqLen, args.embd_dim)
+        pe = torch.zeros(maxSeqLen, embd_dim)
         # 生成位置序列
-        position = torch.arange(0, args.maxSeqLen).unsqueeze(1)
+        position = torch.arange(0, maxSeqLen).unsqueeze(1)
         # 生成exp(log1/10000^(2i/args.maxSeqLen))
         div_term = torch.exp(
-            torch.arange(0, args.embd_dim, 2) * (-math.log(10000.0)/args.embd_dim)
+            torch.arange(0, embd_dim, 2) * (-math.log(10000.0)/embd_dim)
         )
 
         # 计算sin、cos的值

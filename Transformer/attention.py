@@ -4,19 +4,19 @@ from torch import nn, Tensor
 
 '''多头注意力计算'''
 class MultiHeadAttention(nn.Module):
-    def __init__(self, args, is_causal=False):
+    def __init__(self, model_dim, n_heads, embd_dim, maxSeqLen, dropout, is_causal=False):
         super().__init__()
         # 模型维度（args.dim）必须是head(args.n_heads)的整数倍
-        assert args.model_dim % args.n_heads == 0
+        assert model_dim % n_heads == 0
 
         # 每个注意力头的维度
-        self.head_dim = args.model_dim // args.n_heads
-        self.n_heads = args.n_heads
-        self.model_dim = args.model_dim
+        self.head_dim = model_dim // n_heads
+        self.n_heads = n_heads
+        self.model_dim = model_dim
         # token维度
-        self.embd_dim = args.embd_dim
+        self.embd_dim = embd_dim
         # dropout
-        self.dropout = args.dropout
+        self.dropout = dropout
 
         # 参数矩阵
         self.wq = nn.Linear(self.embd_dim, self.model_dim, bias=False)
@@ -34,7 +34,7 @@ class MultiHeadAttention(nn.Module):
         # 创建一个上三角矩阵，用于遮蔽未来信息,decoder需要这个
         # 注意，因为是多头注意力，Mask 矩阵比之前我们定义的多一个维度
         if is_causal:
-            mask = torch.full((1, 1, args.maxSeqLen, args.maxSeqLen), float("-inf"))
+            mask = torch.full((1, 1, maxSeqLen, maxSeqLen), float("-inf"))
             mask = torch.triu(mask, diagonal=1)
             self.register_buffer("mask", mask)
 

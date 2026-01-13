@@ -10,10 +10,11 @@ class FNN(nn.Module):
 
         self.l1 = nn.Linear(input_dim, hidden_dim, bias=False)
         self.l2 = nn.Linear(hidden_dim, input_dim, bias=False)
+        self.relu = nn.ReLU()
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, input_dim: int):
-        return self.dropout(self.l2(nn.ReLU(self.l1(input_dim))))
+        return self.dropout(self.l2(self.relu(self.l1(input_dim))))
 
 
 '''层归一化'''
