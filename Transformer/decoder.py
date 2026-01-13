@@ -2,6 +2,7 @@ from torch import nn
 from Transformer.fnn import *
 from Transformer.attention import *
 
+'''解码器'''
 class DecoderLayer(nn.Module):
     def __init__(self, args):
         super().__init__()
@@ -14,14 +15,14 @@ class DecoderLayer(nn.Module):
         self.attention = MultiHeadAttention(args, is_causal=False)
         self.ffn_norm = LayerNorm(args.embd_dim)
         # 第三个部分是 MLP
-        self.feed_forward = FNN(args.dim, args.dim, args.dropout)
+        self.feed_forward = FNN(args.model_dim, args.embd_dim, args.dropout)
 
     def forward(self, x, enc_out):
         # Layer Norm
         norm_x = self.attention_norm_1(x)
         # 掩码自注意力
         x = x + self.mask_attention.forward(norm_x, norm_x, norm_x)
-        # 多头注意力
+        # 交叉注意力
         norm_x = self.attention_norm_2(x)
         h = x + self.attention.forward(norm_x, enc_out, enc_out)
         # 经过前馈神经网络
@@ -29,12 +30,11 @@ class DecoderLayer(nn.Module):
         return out
 
 class Decoder(nn.Module):
-    '''解码器'''
     def __init__(self, args):
         super(Decoder, self).__init__()
         # 一个 Decoder 由 N 个 Decoder Layer 组成
-        self.layers = nn.ModuleList([DecoderLayer(args) for _ in range(args.n_layer)])
-        self.norm = LayerNorm(args.n_embd)
+        self.layers = nn.ModuleList([DecoderLayer(args) for _ in range(args.decoderLayerNumber)])
+        self.norm = LayerNorm(args.embd_dim)
 
     def forward(self, x, enc_out):
         "Pass the input (and mask) through each layer in turn."
